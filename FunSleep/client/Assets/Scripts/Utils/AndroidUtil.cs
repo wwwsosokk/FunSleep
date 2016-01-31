@@ -15,4 +15,14 @@ public static class AndroidUtil
     {
         Android.Call("doLock");
     }
+
+    public static void InitWXApi(string appId)
+    {
+        Android.Call("initWXApi", appId);
+    }
+
+    public static void SendTextToWX(string text)
+    {
+        Android.Call("sendTextToWX", text);
+    }
 }
