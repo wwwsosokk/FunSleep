@@ -1,5 +1,10 @@
 package com.wuji.funsleep;
 
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.modelmsg.WXTextObject;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.unity3d.player.UnityPlayerActivity;
 
 import android.app.Activity;
@@ -11,21 +16,49 @@ import android.util.Log;
 
 public class MainActivity extends UnityPlayerActivity
 {
+	private static final int MY_REQUEST_CODE = 9999;
 	private DevicePolicyManager policyManager;
     private ComponentName componentName;
-    private static final int MY_REQUEST_CODE = 9999;
-	
-    /**
+    private IWXAPI api;
+
+    public void initWXApi(String appId)
+    {
+    	api = WXAPIFactory.createWXAPI(this, appId, true);
+    	api.registerApp(appId);
+    }
+
+    public void sendTextToWX(String text)
+    {
+    	WXTextObject textObj = new WXTextObject();
+    	textObj.text = text;
+
+    	WXMediaMessage msg = new WXMediaMessage();
+    	msg.mediaObject = textObj;
+    	msg.description = text;
+
+    	SendMessageToWX.Req req = new SendMessageToWX.Req();
+    	req.transaction = buildTransaction("Text");
+    	req.message = msg;
+    	req.scene = SendMessageToWX.Req.WXSceneTimeline;
+    	api.sendReq(req);
+    }
+
+    private String buildTransaction(String transcationType)
+    {
+    	return String.format("%s_%l", transcationType, System.currentTimeMillis());
+	}
+
+	/**
      * 锁屏
      */
 	public void doLock()
     {
 		Log.d("Unity", "start doLock");
-		
+
     	//获取设备管理服务
     	policyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
     	componentName = new ComponentName(this, AdminReceiver.class);
-    	
+
     	//判断是否有锁屏权限，若有则立即锁屏并结束自己，若没有则获取权限
     	if (policyManager.isAdminActive(componentName))
     	{
@@ -36,7 +69,7 @@ public class MainActivity extends UnityPlayerActivity
     		activeManage();
     	}
     }
-    
+
   //获取权限
     private void activeManage()
     {

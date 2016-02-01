@@ -150,6 +150,24 @@ public class UICtrlPair : MonoBehaviour
         return go;
     }
 
+    public UnityEngine.Object GetCtrlComponent(string key, System.Type type)
+    {
+        GameObject go = GetCtrl(key);
+        if (null == go)
+            return null;
+
+        return go.GetComponent(type);
+    }
+
+    public UnityEngine.Object[] GetCtrlComponents(string key, System.Type type)
+    {
+        GameObject go = GetCtrl(key);
+        if (null == go)
+            return null;
+
+        return go.GetComponents(type);
+    }
+
     public T GetCtrlComponent<T>(string key) where T : Component
     {
         GameObject go = GetCtrl(key);
